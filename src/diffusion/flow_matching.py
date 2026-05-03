@@ -4,7 +4,7 @@ Flow Matching for NanoWM — drop-in replacement for GaussianDiffusion.
 Implements conditional flow matching (Lipman et al. 2022 / Liu et al. 2022)
 with a linear interpolation path:
 
-    Forward:  x_t = τ * x_0 + (1 - τ) * ε,   τ = (t + 1) / T ∈ (0, 1]
+    Forward:  x_t = τ * x_0 + (1 - τ) * ε,   τ = 1 - (t + 1) / T ∈ [0, 1)
     Target:   u = x_0 - ε                       (constant vector field)
     Loss:     MSE(model(x_t, t), u)
 
