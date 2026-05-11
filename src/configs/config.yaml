@@ -3,10 +3,10 @@ defaults:
   - dataset: dino_wm/point_maze
   - experiment: default
   - planning: base
-  - override hydra/job_logging: disabled
-  - override hydra/hydra_logging: disabled
   - _self_
   - optional local: paths
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
 
 # Built-in path fallbacks. A gitignored src/configs/local/paths.yaml, when present,
 # is loaded after _self_ and overrides these values.
