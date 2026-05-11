@@ -25,10 +25,24 @@ A minimalist repository for training video world models based on diffusion-forci
 
 ## 🚀 Quick Start
 
+If `uv` is not installed yet, install it first from the official uv installer:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+macOS/Linux:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Then sync the project environment:
+
 ```bash
 git clone https://github.com/simchowitzlabpublic/nano-world-model.git
 cd nano-world-model
-conda env create -f environment.yml && conda activate nanowm
+uv sync
 ```
 
 Set data + results paths (or use the gitignored `src/configs/local/paths.yaml` template — see [docs/config_system.md](docs/config_system.md#path-configuration)):
@@ -55,19 +69,19 @@ For dataset downloads (DINO-WM, RT-1, CSGO), see [docs/datasets/README.md](docs/
 DINO-WM PushT, NanoWM-B/2, default settings (pred-v · additive injection · cosine + ZTSNR):
 
 ```bash
-python src/main.py experiment=dino_wm_pusht dataset=dino_wm/pusht model=nanowm_b2
+uv run python src/main.py experiment=dino_wm_pusht dataset=dino_wm/pusht model=nanowm_b2
 ```
 
 CSGO with the L/2 model:
 
 ```bash
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
 ```
 
 RT-1 (fractal) main run:
 
 ```bash
-python src/main.py experiment=rt1 dataset=rt1/rt1 model=nanowm_b2
+uv run python src/main.py experiment=rt1 dataset=rt1/rt1 model=nanowm_b2
 ```
 
 For reproducibility, we provide example scripts in `src/scripts/`. See [docs/training.md](docs/training.md) for the full training guide, design choices, and ablation tables.

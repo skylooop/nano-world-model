@@ -29,7 +29,7 @@ class LeRobotDataSource(DataSource):
         except ImportError:
             raise ImportError(
                 "LeRobot is required for LeRobotDataSource. "
-                "Install with: pip install lerobot"
+                "Install project dependencies with: uv sync"
             )
 
         self.repo_id = repo_id

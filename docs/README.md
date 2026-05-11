@@ -34,14 +34,14 @@ All training, evaluation, and planning runs go through `src/main.py`:
 
 ```bash
 # Training
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
 
 # Evaluation
-python src/main.py experiment=evaluate_only dataset=dino_wm/pusht model=nanowm_b2 \
+uv run python src/main.py experiment=evaluate_only dataset=dino_wm/pusht model=nanowm_b2 \
     resume_from_checkpoint=<path/to/checkpoint.ckpt>
 
 # Planning
-python src/main.py experiment=planning dataset=dino_wm/point_maze model=nanowm_b2 \
+uv run python src/main.py experiment=planning dataset=dino_wm/point_maze model=nanowm_b2 \
     ckpt_path=<path/to/checkpoint.ckpt>
 ```
 

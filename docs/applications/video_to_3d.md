@@ -22,17 +22,14 @@ DA3 jointly estimates per-frame depth maps and camera parameters from multiple f
 The base training stack plus DA3 + viser:
 
 ```bash
-conda env create -f environment.yml && conda activate nanowm   # base stack
-
-# Video-to-3D extras
-pip install viser xformers
+uv sync --extra video-3d
 git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git
-cd Depth-Anything-3 && pip install -e . && cd ..
+uv pip install -e Depth-Anything-3
 ```
 
 Verify:
 ```bash
-python -c "from depth_anything_3.api import DepthAnything3; import viser; print('OK')"
+uv run python -c "from depth_anything_3.api import DepthAnything3; import viser; print('OK')"
 ```
 
 ## Usage
@@ -40,7 +37,7 @@ python -c "from depth_anything_3.api import DepthAnything3; import viser; print(
 ### Basic
 
 ```bash
-python src/scripts/video_to_pointcloud.py \
+uv run python src/scripts/video_to_pointcloud.py \
     --video sample_videos/train_sample_0.mp4 \
     --output output/scene.ply
 ```
@@ -51,7 +48,7 @@ Long-rollout videos are stretched to the model's training resolution. For accura
 
 ```bash
 # CSGO rollout: native 150×280
-python src/scripts/video_to_pointcloud.py \
+uv run python src/scripts/video_to_pointcloud.py \
     --video results/long_rollout/csgo_100k/sample_0000_gen.mp4 \
     --output output/csgo_scene.ply \
     --native_res 150 280 \
@@ -63,7 +60,7 @@ If your video is already at the correct aspect ratio, omit `--native_res`.
 ### With interactive viewer
 
 ```bash
-python src/scripts/video_to_pointcloud.py \
+uv run python src/scripts/video_to_pointcloud.py \
     --video sample_videos/train_sample_0.mp4 \
     --output output/scene.ply \
     --visualize
@@ -78,7 +75,7 @@ Opens a browser-based viser viewer with:
 ### With depth visualizations
 
 ```bash
-python src/scripts/video_to_pointcloud.py \
+uv run python src/scripts/video_to_pointcloud.py \
     --video sample_videos/train_sample_0.mp4 \
     --output output/scene.ply \
     --save_depth_vis
@@ -90,10 +87,10 @@ Per-frame PNGs (original | depth | confidence) under `output/scene_depth_vis/`.
 
 ```bash
 # Rich viewer (timeline + depth + frustums)
-python src/scripts/video_to_pointcloud.py --view output/scene_viewer.npz
+uv run python src/scripts/video_to_pointcloud.py --view output/scene_viewer.npz
 
 # Simple viewer (point cloud only)
-python src/scripts/video_to_pointcloud.py --view output/scene.ply
+uv run python src/scripts/video_to_pointcloud.py --view output/scene.ply
 ```
 
 ## CLI reference

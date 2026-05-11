@@ -65,7 +65,7 @@ PushT is the most distinctive: it uses **relative actions** (delta moves), `acti
 ### Train command
 
 ```bash
-python src/main.py experiment=dino_wm_pusht dataset=dino_wm/pusht model=nanowm_b2
+uv run python src/main.py experiment=dino_wm_pusht dataset=dino_wm/pusht model=nanowm_b2
 ```
 
 Swap the experiment + dataset names for the other four envs.
@@ -98,10 +98,10 @@ huggingface-cli download IPEC-COMMUNITY/fractal20220817_data_lerobot \
 
 ```bash
 # Main run: NanoWM-B/2, 300k steps
-python src/main.py experiment=rt1 dataset=rt1/rt1 model=nanowm_b2
+uv run python src/main.py experiment=rt1 dataset=rt1/rt1 model=nanowm_b2
 
 # Ablation arms (50k steps)
-python src/main.py experiment=ablation_rt1 dataset=rt1/rt1 model=nanowm_b2 \
+uv run python src/main.py experiment=ablation_rt1 dataset=rt1/rt1 model=nanowm_b2 \
     experiment.diffusion.pred_name=v   # or pred_name=x / epsilon
 ```
 
@@ -188,7 +188,7 @@ spec:
 ### Train command
 
 ```bash
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
 ```
 
 The shipped checkpoints are NanoWM-L/2 trained for 50k or 100k steps. See [training.md](../training.md#pretrained-checkpoints-best-config-runs) for HF links.

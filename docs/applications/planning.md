@@ -7,10 +7,7 @@ CEM-style model-predictive control over the diffusion world model. Each plan sam
 Planning needs the simulator environments on top of the training stack:
 
 ```bash
-conda env create -f environment.yml && conda activate nanowm   # base stack
-
-# Planning-specific extras (PushT, point_maze, deformable envs)
-pip install gym pymunk pygame shapely scikit-image d4rl
+uv sync --extra planning
 ```
 
 **point_maze** also requires **MuJoCo 2.10** (binary, not pip):
@@ -21,7 +18,7 @@ pip install gym pymunk pygame shapely scikit-image d4rl
 # 2) Add the runtime dir to LD_LIBRARY_PATH:
 export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco210/bin:$LD_LIBRARY_PATH
 # 3) Verify:
-python -c "from gym.envs.mujoco import mujoco_env; from d4rl import offline_env; print('OK')"
+uv run python -c "from gym.envs.mujoco import mujoco_env; from d4rl import offline_env; print('OK')"
 ```
 
 PushT only needs the pip extras above — no MuJoCo.
@@ -30,7 +27,7 @@ PushT only needs the pip extras above — no MuJoCo.
 
 ```bash
 # point_maze: 50 episodes, dataset goals
-python src/main.py experiment=planning model=nanowm_b2 dataset=dino_wm/point_maze \
+uv run python src/main.py experiment=planning model=nanowm_b2 dataset=dino_wm/point_maze \
     ckpt_path=<path/to/point_maze.ckpt> \
     planning.env_name=point_maze planning.goal_source=dset planning.goal_H=5 \
     planning.horizon=5 planning.replan_every=5 planning.max_episode_steps=10 \
@@ -39,7 +36,7 @@ python src/main.py experiment=planning model=nanowm_b2 dataset=dino_wm/point_maz
 # pusht: 50 episodes, dataset goals (dataset goals = guaranteed-reachable
 # target reached by replaying ground-truth actions for goal_H planner steps;
 # pusht's random goals are typically not reachable in 5 planner steps)
-python src/main.py experiment=planning model=nanowm_b2 dataset=dino_wm/pusht \
+uv run python src/main.py experiment=planning model=nanowm_b2 dataset=dino_wm/pusht \
     ckpt_path=<path/to/pusht.ckpt> \
     planning.env_name=pusht planning.goal_source=dset planning.goal_H=5 \
     planning.horizon=5 planning.replan_every=5 planning.max_episode_steps=20 \

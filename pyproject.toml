@@ -1,0 +1,75 @@
+[project]
+name = "nano-world-model"
+version = "0.1.0"
+description = "A minimalist repository for training video world models based on diffusion-forcing."
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+dependencies = [
+    "accelerate",
+    "av",
+    "beautifulsoup4",
+    "decord",
+    "diffusers[torch]==0.24.0",
+    "einops",
+    "ftfy",
+    "h5py",
+    "hydra-core",
+    "imageio",
+    "imageio-ffmpeg",
+    "lerobot",
+    "lerobot-datasets==2.1.0",
+    "lpips",
+    "matplotlib",
+    "moviepy==1.0.3",
+    "numpy",
+    "omegaconf",
+    "opencv-python",
+    "pandas",
+    "piqa",
+    "pillow",
+    "protobuf==4.25.3",
+    "pytorch-fid",
+    "pytorch-lightning==1.9.5",
+    "requests",
+    "scikit-image",
+    "scipy",
+    "seaborn",
+    "sentencepiece",
+    "tensorboard",
+    "timm",
+    "torch>=2.0.1",
+    "torchmetrics",
+    "torchvision>=0.15.2",
+    "tqdm",
+    "transformers",
+    "wandb",
+]
+
+[project.optional-dependencies]
+planning = [
+    "d4rl",
+    "gym",
+    "pymunk",
+    "pygame",
+    "shapely",
+]
+video-3d = [
+    "viser",
+    "xformers; sys_platform == 'linux'",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu118", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+    { index = "pytorch-cu118", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true

@@ -100,22 +100,22 @@ The profile composes on top of `default.yaml`, then `dataset=`, `model=`, and CL
 
 ```bash
 # Train CSGO with the L/2 model
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
 
 # Train DINO-WM PushT for 100k steps
-python src/main.py experiment=dino_wm_pusht dataset=dino_wm/pusht model=nanowm_b2 \
+uv run python src/main.py experiment=dino_wm_pusht dataset=dino_wm/pusht model=nanowm_b2 \
     training.max_steps=100000
 
 # Switch action injection (any experiment)
-python src/main.py experiment=ablation_rt1 dataset=rt1/rt1 \
+uv run python src/main.py experiment=ablation_rt1 dataset=rt1/rt1 \
     model.action_injection.type=film
 
 # Resume from a checkpoint
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo \
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo \
     resume_from_checkpoint=<path/to/ckpt>
 
 # Disable wandb for one run
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo \
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo \
     wandb.enabled=false
 ```
 
@@ -124,7 +124,7 @@ python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo \
 The composed config has the following top-level keys at runtime. Inspect with `--cfg job`:
 
 ```bash
-python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo --cfg job
+uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo --cfg job
 ```
 
 <div align="center">
@@ -200,10 +200,10 @@ See [training.md](training.md) for the design choices and ablation results.
 
 ```bash
 # Print resolved config without running
-python src/main.py experiment=csgo dataset=game/csgo --cfg job
+uv run python src/main.py experiment=csgo dataset=game/csgo --cfg job
 
 # Print just one section
-python src/main.py experiment=csgo dataset=game/csgo --cfg job --package experiment.training
+uv run python src/main.py experiment=csgo dataset=game/csgo --cfg job --package experiment.training
 ```
 
 Common errors:

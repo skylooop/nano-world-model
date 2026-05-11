@@ -39,6 +39,7 @@ dmypy.json
 # Environment files
 .env
 .env.local
+.venv/
 *.venv
 venv/
 ENV/
