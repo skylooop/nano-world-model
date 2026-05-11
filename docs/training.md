@@ -8,6 +8,12 @@ End-to-end guide to training a Nano World Model: workflow, design choices (with 
 uv sync
 ```
 
+RT-1/LeRobot support is optional because it requires a newer Hugging Face stack than the base world-model training path:
+
+```bash
+uv sync --extra rt1
+```
+
 Set data paths once (or use the `local/paths.yaml` template — see [config_system.md](config_system.md#path-configuration)):
 
 ```bash
@@ -32,6 +38,7 @@ curl -L "https://www.dropbox.com/scl/fi/c5nfs6c422nlpj880jbmh/i3d_torchscript.pt
 uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
 
 # RT-1 (fractal) — main run, NanoWM-B/2
+# Requires: uv sync --extra rt1
 uv run python src/main.py experiment=rt1 dataset=rt1/rt1 model=nanowm_b2
 
 # DINO-WM PushT — NanoWM-B/2

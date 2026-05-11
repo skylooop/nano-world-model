@@ -78,6 +78,12 @@ Real-robot manipulation, 87k episodes from the [IPEC-COMMUNITY/fractal20220817_d
 
 ### Download
 
+Install the RT-1/LeRobot extra before using this dataset:
+
+```bash
+uv sync --extra rt1
+```
+
 ```bash
 huggingface-cli download IPEC-COMMUNITY/fractal20220817_data_lerobot \
     --repo-type dataset --local-dir $RT1_DATA_ROOT

@@ -45,6 +45,12 @@ cd nano-world-model
 uv sync
 ```
 
+RT-1/LeRobot support is optional:
+
+```bash
+uv sync --extra rt1
+```
+
 Set data + results paths (or use the gitignored `src/configs/local/paths.yaml` template — see [docs/config_system.md](docs/config_system.md#path-configuration)):
 
 ```bash
@@ -81,6 +87,7 @@ uv run python src/main.py experiment=csgo dataset=game/csgo model=nanowm_l2_csgo
 RT-1 (fractal) main run:
 
 ```bash
+# Requires: uv sync --extra rt1
 uv run python src/main.py experiment=rt1 dataset=rt1/rt1 model=nanowm_b2
 ```
 

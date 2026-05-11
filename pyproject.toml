@@ -9,14 +9,13 @@ dependencies = [
     "av",
     "beautifulsoup4",
     "decord",
-    "diffusers[torch]==0.24.0",
+    "diffusers[torch]>=0.27.2,<0.36.0",
     "einops",
     "ftfy",
     "h5py",
     "hydra-core",
     "imageio",
     "imageio-ffmpeg",
-    "lerobot==0.3.3",
     "lpips",
     "matplotlib",
     "moviepy==1.0.3",
@@ -45,6 +44,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+rt1 = [
+    "lerobot==0.3.3",
+]
 planning = [
     "d4rl",
     "gym",
