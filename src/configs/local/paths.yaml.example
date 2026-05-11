@@ -2,7 +2,9 @@
 # Local path configuration - copy to paths.yaml and edit for your environment
 # This file (paths.yaml) is gitignored and will NOT be committed
 #
-# Usage:
+# Usage: this file is auto-loaded by src/configs/config.yaml when copied to
+# paths.yaml, because config.yaml includes `optional local: paths`.
+#
 #   cp src/configs/local/paths.yaml.example src/configs/local/paths.yaml
 #   # Edit paths below, then run training as usual
 

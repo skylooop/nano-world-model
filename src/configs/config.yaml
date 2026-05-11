@@ -6,8 +6,10 @@ defaults:
   - override hydra/job_logging: disabled
   - override hydra/hydra_logging: disabled
   - _self_
+  - optional local: paths
 
-# Paths (from environment variables with defaults)
+# Built-in path fallbacks. A gitignored src/configs/local/paths.yaml, when present,
+# is loaded after _self_ and overrides these values.
 dataset_dir: ${oc.env:DATASET_DIR,./data}
 csgo_data_dir: ${oc.env:CSGO_DATA_DIR,./data/csgo}
 vae_model_path: ${oc.env:VAE_MODEL_PATH,stabilityai/sd-vae-ft-mse}

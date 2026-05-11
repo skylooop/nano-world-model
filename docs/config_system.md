@@ -73,6 +73,7 @@ export RESULTS_DIR=/path/to/results
 cp src/configs/local/paths.yaml.example src/configs/local/paths.yaml
 # Edit dataset_dir / csgo_data_dir / vae_model_path / results_dir
 ```
+`src/configs/config.yaml` auto-loads this file via `optional local: paths` when it exists.
 
 CLI overrides (`dataset_dir=/path` etc.) work too and beat both.
 
