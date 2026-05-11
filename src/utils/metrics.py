@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import warnings
 import lpips
 import piqa
 from einops import rearrange
@@ -16,6 +17,20 @@ from PIL import Image
 import time
 import os
 # import dreamsim
+
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"The parameter 'pretrained' is deprecated since 0\.13 and may be removed in the future, please use 'weights' instead\.",
+    category=UserWarning,
+    module=r"torchvision\.models\._utils",
+)
+warnings.filterwarnings(
+    "ignore",
+    message=r"Arguments other than a weight enum or `None` for 'weights' are deprecated since 0\.13 and may be removed in the future\..*",
+    category=UserWarning,
+    module=r"torchvision\.models\._utils",
+)
 
 def batch_forward(batch_size, input1, input2, forward):
     assert input1.shape[0] == input2.shape[0]
@@ -408,4 +423,3 @@ class Evaluator():
                 results['fvd'] = self._compute_fvd(x_pred, x_gt, raw=False)
             results['fid'] = self._compute_fid(x_pred, x_gt, raw=False)
         return results
-

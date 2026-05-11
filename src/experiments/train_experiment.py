@@ -43,8 +43,8 @@ from utils.nanowm_utils import (
     clip_grad_norm_,
     cleanup,
 )
-from utils.distributed_utils import is_rank_zero
-from utils.logger_utils import create_tensorboard_logger, create_wandb_logger
+from utils.distributed_utils import get_rank_zero_logger, is_rank_zero, rank_zero_print
+from utils.logger_utils import create_csv_logger, create_tensorboard_logger, create_wandb_logger
 from utils.vae_ops import encode_first_stage, decode_first_stage, vae_autocast_context
 from hydra.core.hydra_config import HydraConfig
 from hydra.utils import get_original_cwd
@@ -57,9 +57,9 @@ class NanoWMTrainingModule(LightningModule):
         super(NanoWMTrainingModule, self).__init__()
         self.args = args
 
-        self.logger_instance = logging.getLogger(__name__)
+        self.logger_instance = get_rank_zero_logger(__name__)
 
-        print("[Init] NanoWMTrainingModule: building model", flush=True)
+        self.logger_instance.info("[Init] NanoWMTrainingModule: building model")
         self.model = get_models(args)
 
         if args.experiment.pretrained:
@@ -71,7 +71,7 @@ class NanoWMTrainingModule(LightningModule):
         # checkpoint resume path (_load_checkpoint) re-normalizes `_orig_mod.`
         # for cross-mode interop, so toggling this flag between runs is safe.
         if getattr(args.experiment.infra, "compile", False):
-            print("[Init] torch.compile(self.model) — first step will pay JIT cost", flush=True)
+            self.logger_instance.info("[Init] torch.compile(self.model) — first step will pay JIT cost")
             self.model = torch.compile(self.model)
 
         self.diffusion = create_diffusion(
@@ -82,17 +82,16 @@ class NanoWMTrainingModule(LightningModule):
             snr_gamma=args.experiment.diffusion.snr_gamma,
             zero_terminal_snr=args.experiment.diffusion.zero_terminal_snr,
         )
-        print(f"[Init] Loading VAE from: {args.vae_model_path}", flush=True)
+        self.logger_instance.info(f"[Init] Loading VAE from: {args.vae_model_path}")
         self.vae = AutoencoderKL.from_pretrained(args.vae_model_path, subfolder="vae")
         # Trust whatever VAE was passed in — read its own scaling factor rather
         # than baking in 0.18215 (SD 1.x) or any other constant. PixArt/SDXL use
         # 0.13025, Flux uses 0.3611, etc.
         self.vae_scale_factor = self.vae.config.scaling_factor
         self._vae_precision = args.experiment.infra.vae_precision
-        print(
+        self.logger_instance.info(
             f"[Init] VAE loaded, scaling_factor={self.vae_scale_factor}, "
             f"vae_precision={self._vae_precision}",
-            flush=True,
         )
         self._sanity_check_vae(args)
         self.opt = torch.optim.AdamW(
@@ -104,7 +103,7 @@ class NanoWMTrainingModule(LightningModule):
 
         self.vae.requires_grad_(False)
         self.model.train()
-        print("[Init] NanoWMTrainingModule initialized", flush=True)
+        self.logger_instance.info("[Init] NanoWMTrainingModule initialized")
 
     def _sanity_check_vae(self, args):
         """Encode+decode a random batch to catch VAE NaN issues at init time."""
@@ -126,7 +125,7 @@ class NanoWMTrainingModule(LightningModule):
                 f"VAE decode produced NaN/Inf at init "
                 f"(vae_precision={self._vae_precision}, path={args.vae_model_path})."
             )
-        print(f"[Init] VAE sanity: clean under vae_precision={self._vae_precision}", flush=True)
+        self.logger_instance.info(f"[Init] VAE sanity: clean under vae_precision={self._vae_precision}")
 
     def _vae_encode(self, x):
         return encode_first_stage(self.vae, x, precision=self._vae_precision)
@@ -365,23 +364,8 @@ class NanoWMTrainingModule(LightningModule):
         rank = self.global_rank
         experiment_dir = os.getcwd()
 
-        rank_logger = logging.getLogger(f"rank_{rank}")
-        rank_logger.setLevel(logging.INFO)
-        rank_logger.propagate = False
-
         log_file = os.path.join(experiment_dir, f"rank_{rank}.log")
-        fh = logging.FileHandler(log_file, mode="a")
-        fh.setLevel(logging.INFO)
-        fh.setFormatter(logging.Formatter("[%(asctime)s][RANK %(name)s] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
-        rank_logger.addHandler(fh)
-
-        if rank == 0:
-            ch = logging.StreamHandler(sys.stdout)
-            ch.setLevel(logging.INFO)
-            ch.setFormatter(logging.Formatter("%(message)s"))
-            rank_logger.addHandler(ch)
-
-        self.logger_instance = rank_logger
+        self.logger_instance = get_rank_zero_logger(f"rank_{rank}", log_file=log_file)
         self.logger_instance.info(f"***** Rank {rank} logging initialized at {log_file} *****")
 
 
@@ -389,7 +373,7 @@ class TrainExperiment(BaseExperiment):
     def __init__(self, cfg):
         super().__init__(cfg)
         # Use module-level logger (configured by Hydra)
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_rank_zero_logger(__name__)
 
     def _create_experiment_directory(self):
         """Create experiment directory structure (simplified version)."""
@@ -430,6 +414,12 @@ class TrainExperiment(BaseExperiment):
             if wandb_logger is not None:
                 loggers.append(wandb_logger)
 
+        if len(loggers) == 0:
+            loggers.append(create_csv_logger(
+                experiment_dir=experiment_dir,
+                name=self.cfg.logger.logger_name,
+            ))
+
         # Log full resolved config as hyperparameters so ablation knobs
         # (model.action_injection.type, model.causal, experiment.diffusion.*, ...)
         # show up in the experiment tracker UI.
@@ -440,9 +430,9 @@ class TrainExperiment(BaseExperiment):
                     logger.log_hyperparams(flat_cfg)
                 except Exception as exc:
                     # Don't crash training if a logger rejects the payload.
-                    logging.getLogger(__name__).warning(
-                        f"log_hyperparams failed on {type(logger).__name__}: {exc}"
-                    )
+                        get_rank_zero_logger(__name__).warning(
+                            f"log_hyperparams failed on {type(logger).__name__}: {exc}"
+                        )
 
         return loggers
 
@@ -617,7 +607,7 @@ class TrainExperiment(BaseExperiment):
                     train_dataset = None
                     _used_fast_path = True
                     if is_rank_zero:
-                        print(f"[Data] Fast path: loaded {len(slice_specs)} precomputed slices, skipped full indexing", flush=True)
+                        rank_zero_print(f"[Data] Fast path: loaded {len(slice_specs)} precomputed slices, skipped full indexing", flush=True)
 
         if not _used_fast_path:
             train_dataset, val_dataset = create_train_val_datasets(
@@ -628,7 +618,7 @@ class TrainExperiment(BaseExperiment):
                 **loader_cfg,
             )
             if is_rank_zero:
-                print("[Data] Datasets created", flush=True)
+                rank_zero_print("[Data] Datasets created", flush=True)
 
             val_dataset = self._apply_fixed_validation_subset(val_dataset, experiment_dir)
         if (
@@ -642,6 +632,7 @@ class TrainExperiment(BaseExperiment):
                 self.logger.info(f"Using {len(val_dataset)} validation samples")
 
         pl_module = NanoWMTrainingModule(args)
+        pl_module.train()
         if args.experiment.resume_from_checkpoint:
             self._load_checkpoint(args, pl_module)
 
@@ -658,7 +649,7 @@ class TrainExperiment(BaseExperiment):
             if i3d_path and not os.path.isabs(i3d_path):
                 i3d_path = os.path.join(get_original_cwd(), i3d_path)
             if is_rank_zero:
-                print(
+                rank_zero_print(
                     f"[Eval] Initializing LPIPS/FID/FVD evaluator "
                     f"(i3d_model_path={i3d_path})",
                     flush=True,
@@ -733,7 +724,7 @@ class TrainExperiment(BaseExperiment):
             **self._make_val_loader(),
         )
         if is_rank_zero:
-            print("[Data] DataLoaders created", flush=True)
+            rank_zero_print("[Data] DataLoaders created", flush=True)
             self.logger.info(f"Training dataset contains {len(train_dataset)} videos")
             self.logger.info(f"Validation dataset contains {len(val_dataset)} videos")
             self.logger.info(f"One epoch iteration {math.ceil(len(train_loader))} steps")

@@ -1,7 +1,8 @@
 """Logger factory functions for PyTorch Lightning."""
 
 import os
-from pytorch_lightning.loggers import TensorBoardLogger
+
+from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger
 
 
 def create_tensorboard_logger(experiment_dir, name="nanowm"):
@@ -49,3 +50,10 @@ def create_wandb_logger(project, name, experiment_dir, entity=None, mode="online
         entity=entity,
         offline=(mode == "offline")
     )
+
+
+def create_csv_logger(experiment_dir, name="nanowm"):
+    """Create a lightweight CSV logger for runs without TensorBoard/W&B."""
+    csv_dir = os.path.join(experiment_dir, "csv_logs")
+    os.makedirs(csv_dir, exist_ok=True)
+    return CSVLogger(save_dir=csv_dir, name=name)

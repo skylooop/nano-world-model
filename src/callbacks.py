@@ -246,7 +246,7 @@ class MetricsLogger(Callback):
                     exp.add_video(
                         f"val_vis/{sample_tag}/x_pred", s_pred.unsqueeze(0), global_step=trainer.global_step, fps=4
                     )
-                else:
+                elif hasattr(exp, "log"):
                     try:
                         import wandb
                     except Exception:
@@ -344,6 +344,8 @@ class MetricsLogger(Callback):
                         },
                         step=trainer.global_step,
                     )
+                else:
+                    continue
 
     def get_predictions(self, pl_module, batch, split="train"):
         is_train = pl_module.training
@@ -361,4 +363,3 @@ class MetricsLogger(Callback):
         if is_train:
             pl_module.train()
         return x_pred, x_reconst, x_gt
-
